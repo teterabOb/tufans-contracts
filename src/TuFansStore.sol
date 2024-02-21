@@ -34,6 +34,15 @@ contract TokenSale is Ownable {
         require(_numTokens > 0, "You must buy at least one token");
         require(_numTokens <= tokenForSale.balanceOf(address(this)), "Not enough tokens for sale");
         
+        uint256 tokenDecimals = tokenForSale.decimals();
+        uint256 paymentDecimals = paymentToken.decimals();
+
+        if(tokenDecimals > paymentDecimals) {
+            _numTokens = _numTokens * (10 ** (tokenDecimals - paymentDecimals));
+        } else if(tokenDecimals < paymentDecimals) {
+            _numTokens = _numTokens / (10 ** (paymentDecimals - tokenDecimals));
+        }
+
         uint256 totalCost = _numTokens * tokenPrice;
         paymentToken.transferFrom(msg.sender, address(this), totalCost);
         tokenForSale.transfer(msg.sender, _numTokens);
