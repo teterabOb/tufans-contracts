@@ -15,7 +15,7 @@ contract TokenSale is Ownable {
         uint256 tokenPrice;
         uint256 tokenAmount;
         uint256 tokenSold;
-        uint256 tokenRemaining;                
+        uint256 tokenRemaining;
         uint256 startDate;
         uint256 endDate;
     }
@@ -23,29 +23,42 @@ contract TokenSale is Ownable {
     mapping(uint => Sale) public sales;
     //mapping(uint => bool) public saleExists;
 
-    constructor(IERC20 _tokenForSale, IERC20 _paymentToken) Ownable(msg.sender) {
+    constructor(
+        IERC20 _tokenForSale,
+        IERC20 _paymentToken
+    ) Ownable(msg.sender) {
         tokenForSale = _tokenForSale;
         paymentToken = _paymentToken;
-        tokenPrice = 1 * 10**18; // 1 token = 1 paymentToken = 1 USDC
+        tokenPrice = 1 * 10 ** 18; // 1 token = 1 paymentToken = 1 USDC
     }
 
-    function buyTokens(uint256 _numTokens) public {
-        require(saleActive, "Sale is not active");
-        require(_numTokens > 0, "You must buy at least one token");
-        require(_numTokens <= tokenForSale.balanceOf(address(this)), "Not enough tokens for sale");
-        
+    function adjustTokenAmount(
+        uint256 _numTokens
+    ) public view returns (uint256) {
         uint256 tokenDecimals = tokenForSale.decimals();
         uint256 paymentDecimals = paymentToken.decimals();
 
-        if(tokenDecimals > paymentDecimals) {
-            _numTokens = _numTokens * (10 ** (tokenDecimals - paymentDecimals));
-        } else if(tokenDecimals < paymentDecimals) {
-            _numTokens = _numTokens / (10 ** (paymentDecimals - tokenDecimals));
+        if (tokenDecimals > paymentDecimals) {
+            return _numTokens * (10 ** (tokenDecimals - paymentDecimals));
+        } else if (tokenDecimals < paymentDecimals) {
+            return _numTokens / (10 ** (paymentDecimals - tokenDecimals));
+        } else {
+            return _numTokens;
         }
+    }
+    function buyTokens(uint256 _numTokens) public {
+        require(saleActive, "Sale is not active");
+        require(_numTokens > 0, "You must buy at least one token");
+        require(
+            _numTokens <= tokenForSale.balanceOf(address(this)),
+            "Not enough tokens for sale"
+        );
 
-        uint256 totalCost = _numTokens * tokenPrice;
+        uint256 adjustedNumTokens = adjustTokenAmount(_numTokens);
+        uint256 totalCost = adjustedNumTokens * tokenPrice;
+
         paymentToken.transferFrom(msg.sender, address(this), totalCost);
-        tokenForSale.transfer(msg.sender, _numTokens);
+        tokenForSale.transfer(msg.sender, adjustedNumTokens);
     }
 
     function withdraw() public onlyOwner {
@@ -59,12 +72,20 @@ contract TokenSale is Ownable {
         tokenPrice = _tokenPrice;
     }
 
-    function addSale(uint256 _tokenPrice, uint256 _tokenAmount, uint256 _startDate, uint256 _endDate) public onlyOwner {
+    function addSale(
+        uint256 _tokenPrice,
+        uint256 _tokenAmount,
+        uint256 _startDate,
+        uint256 _endDate
+    ) public onlyOwner {
         require(_tokenPrice > 0, "Token price must be greater than 0");
         require(_tokenAmount > 0, "Token amount must be greater than 0");
         require(_startDate > 0, "Start date must be greater than 0");
         require(_endDate > 0, "End date must be greater than 0");
-        require(_endDate > _startDate, "End date must be greater than start date");
+        require(
+            _endDate > _startDate,
+            "End date must be greater than start date"
+        );
 
         Sale storage newSale = sales[actualSale];
         newSale.tokenPrice = _tokenPrice;
