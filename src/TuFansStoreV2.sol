@@ -32,8 +32,7 @@ contract TuFansTokenSale is ReentrancyGuard, Ownable {
         require(usdc.balanceOf(msg.sender) >= totalWithFee, "Not enough USDC");
 
         emit TokenBought(msg.sender, _amount, totalWithFee, fee, totalWithFee);
-
-        usdc.approve(address(this), totalWithFee);
+        
         // Se transfieren los USDC directo al Treasury
         usdc.transferFrom(msg.sender, TREASURY_ADDRESS, totalWithoutFee);
         // Se transfieren los USDC directo al address de Marketing
@@ -42,7 +41,7 @@ contract TuFansTokenSale is ReentrancyGuard, Ownable {
         tokenTuFans.transfer(msg.sender, _amount);
     }
 
-    function _getAmountToTransferInUSDC(uint256 _amount) public view returns(uint256, uint256, uint256) {
+    function _getAmountToTransferInUSDC(uint256 _amount) private view returns(uint256, uint256, uint256) {
         uint256 amountScaled = _amount / 10**(DECIMALS_TOKEN-DECIMALS_USDC); // LA DIFERENCIA DE AMBOS DECIMALES 18 = EL TOKEN y 6 = USDC da 12
 
         uint256 totalWithoutFee = amountScaled * price;
