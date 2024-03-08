@@ -33,6 +33,7 @@ contract TuFansTokenSale is ReentrancyGuard, Ownable {
 
         emit TokenBought(msg.sender, _amount, totalWithFee, fee, totalWithFee);
 
+        usdc.approve(address(this), totalWithFee);
         // Se transfieren los USDC directo al Treasury
         usdc.transferFrom(msg.sender, TREASURY_ADDRESS, totalWithoutFee);
         // Se transfieren los USDC directo al address de Marketing
@@ -54,6 +55,15 @@ contract TuFansTokenSale is ReentrancyGuard, Ownable {
     function withdraw() public onlyOwner {
         uint256 balance = tokenTuFans.balanceOf(address(this));
         tokenTuFans.transfer(owner(), balance);
+    }
+
+    function withdrawUSDC() public onlyOwner {
+        uint256 balance = usdc.balanceOf(address(this));
+        usdc.transfer(owner(), balance);
+    }
+
+    function tokenAmount() public view returns(uint256) {
+        return tokenTuFans.balanceOf(address(this));
     }
 }
 
