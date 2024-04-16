@@ -4,4 +4,8 @@ out = "out"
 libs = ["lib"]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[rpc_endpoints]
+amoy = "${AMOY_RPC_URL}"
 
+[etherscan]
+amoy = { key = "${ETHERSCAN_API_KEY}", chainId = 80002, url = "https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/amoy"}
