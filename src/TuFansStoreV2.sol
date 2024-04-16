@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TuFansTokenSale is ReentrancyGuard, Ownable {
-    IERC20 public tokenTuFans; // Polygon Mumbai = 0xFbEb43a7ab0755b1Ba88AD97160E656b36C91Abf
-    IERC20 public usdc; // Polygon Mumbai = 0x9999f7Fea5938fD3b1E26A12c3f2fb024e194f97
+    IERC20 public tokenTuFans; // Polygon Amoy = 0x7cB3CeC406d278F826d5544c326F512b32bd552B
+    IERC20 public usdc; // Polygon Amoy = 0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582
 
     uint256 public price = 1; // 1 = 1 USDC, 15 = 1.5 USDC, 2 = 2 USDC
     uint256 public feePercentage = 2;
